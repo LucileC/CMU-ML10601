@@ -71,17 +71,10 @@ We have I(Y;C|A=1) > I(Y;B|A=1), so we should split on C.
 
 7. We splitted on A and on C, so we have a tree of depth 2. The only uncertain case left is when A = 1 and C = 0. We then need to split on B. We will thus have a tree of depth 3. (given that we have 3 attributes, depth 3 is the maximal depth.)
 
-8.  
+8.  We obtain the following decision tree: 
 
+<p align="center">
 ![Decision tree](https://github.com/LucileC/CMU-ML10601/blob/master/HW2/decisiontree1.png "Decision tree")
-
-
-**A** ---> = 0 ---> _Y = 0_
-
-  ---> = 1 ---> **C** ---> = 0 ---> **B** ---> = 0 ---> _Y = 1_
-
-  							  	    ---> = 1 ---> _Y = 0_
-
-  				  ---> = 2 ---> _Y = 1_
+</p>
 
 
