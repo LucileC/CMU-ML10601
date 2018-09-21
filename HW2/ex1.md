@@ -73,6 +73,9 @@ We have I(Y;C|A=1) > I(Y;B|A=1), so we should split on C.
 
 8.  
 
+![Decision tree](https://github.com/LucileC/CMU-ML10601/blob/master/HW2/decisiontree1.png "Decision tree")
+
+
 **A** ---> = 0 ---> _Y = 0_
 
   ---> = 1 ---> **C** ---> = 0 ---> **B** ---> = 0 ---> _Y = 1_
