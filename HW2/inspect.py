@@ -35,7 +35,7 @@ def get_column_by_label(csv_lists,label):
 	Returns a vector type Y|X=0: values of Y knowing X = 0.
 	cond_list : list of conditions : [ (X1,0), (X2,0), ...]
 '''
-def get_column_label_knowing_cond(csv_lists,Y,cond_list):
+def get_column_by_label_knowing_cond(csv_lists,Y,cond_list):
 	Y_vect = get_column_by_label(csv_lists,Y)
 	cond_vectors = list()
 	for (X,cond) in cond_list :
@@ -55,6 +55,13 @@ def get_csv_lists(csv_reader):
 		csv_lists.append(row)
 	return csv_lists
 
+'''
+	Returns a list of the values that variable "label" takes in dataset csv_lists
+'''
+def get_possible_values(csv_lists,label):
+	X = get_column_by_label(csv_lists,label)
+	return list(set(X))
+
 def get_number_of_each_elt(col_vec):
 	mylist = list(set(col_vec))
 	number_of_each_label = dict()
@@ -63,9 +70,9 @@ def get_number_of_each_elt(col_vec):
 	return number_of_each_label
 
 ''' 
-	Computes the entropy of a vector, knowing condition. Condition can be None.
+	Computes the entropy of a vector
 '''
-def get_entropy(col_vec,cond=None):
+def compute_entropy(col_vec):
 	n = len(col_vec)
 	number_of_each_label = get_number_of_each_elt(col_vec)
 	entropy = 0
@@ -73,6 +80,36 @@ def get_entropy(col_vec,cond=None):
 		f = float(count)/n
 		entropy -=  f * log2(f)
 	return entropy
+
+'''
+	Gets the entropy of a variable (label) given a dataset (list of lists)
+'''
+def get_entropy(csv_lists,label):
+	X = get_column_by_label(csv_lists,label)
+	return compute_entropy(X)
+
+'''
+	Gets the conditional entropy of a variable (label) given a dataset (list of lists) and a condition.
+	cond_list : list/conjunction of conditions : [ cond1, cond2, ...] with cond as a variable (X) or cond as a tuple (X,1) for X=1.
+'''
+def get_conditional_entropy(csv_lists,label,cond_list):
+	for cond in cond_list:
+		## cond is just a variable
+		if isinstance(cond,str):
+			number_of_values_of_cond = get_number_of_each_elt(get_column_by_label(csv_lists,cond))
+			entropy = 0
+			n = len(csv_lists) - 1
+			for possible_val, number_of_possible_val in number_of_values_of_cond.items():
+				proba = float(number_of_possible_val)/n
+				conditional_entropy = get_conditional_entropy(csv_lists,label,[(cond,possible_val)])
+				entropy += proba * conditional_entropy
+			return entropy
+		else :
+			Y = get_column_by_label_knowing_cond(csv_lists,label,[cond])
+			return compute_entropy(Y)
+
+def get_mutual_information(csv_lists,Y,A):
+	return get_entropy(csv_lists,Y) - get_conditional_entropy(csv_lists,Y,[A])
 
 def get_majority_vote(number_of_each_label):
 	max = 0
@@ -96,7 +133,7 @@ def inspect(input,output):
 		csv_reader = csv.reader(fin)
 		csv_lists = get_csv_lists(csv_reader)
 		col_Y = get_column(csv_lists,-1)
-		entropy = get_entropy(col_Y)
+		entropy = compute_entropy(col_Y)
 		error = get_error_majority_vote(col_Y)
 		with open(output,'w') as fout:
 			fout.write('entropy: %.12f\nerror: %.12f'%(entropy,error))

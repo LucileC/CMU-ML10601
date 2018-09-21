@@ -9,7 +9,8 @@ def test(input):
 	with open(input,'rb') as fin:
 		csv_reader = csv.reader(fin)
 		csv_lists = inspect.get_csv_lists(csv_reader)
-		print(inspect.get_column_label_knowing_cond(csv_lists,'Y',[('A','1'),('C','0')]))
+		# print(inspect.get_column_by_label_knowing_cond(csv_lists,'Y',[('A','1'),('C','0')]))
+		print(inspect.get_mutual_information(csv_lists,'Y','A'))
 
 
 if __name__ == '__main__':
