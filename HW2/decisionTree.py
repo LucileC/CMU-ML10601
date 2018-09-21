@@ -10,7 +10,8 @@ def test(input):
 		csv_reader = csv.reader(fin)
 		csv_lists = inspect.get_csv_lists(csv_reader)
 		# print(inspect.get_column_by_label_knowing_cond(csv_lists,'Y',[('A','1'),('C','0')]))
-		print(inspect.get_mutual_information(csv_lists,'Y','A'))
+		# print(inspect.get_conditional_entropy(csv_lists,'Y',['C']))
+		print(inspect.get_mutual_information(csv_lists,'Y','C'))
 
 
 if __name__ == '__main__':

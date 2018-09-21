@@ -33,11 +33,11 @@ I(Y;C) = H(Y) - ( p(C=2) * H(Y|C=2) + p(C=1) * H(Y|C=1) + p(C=0) * H(Y|C=0) )
 
 I(Y;C) = H(Y) - ( p(C=2) *  ( - p(Y=1|C=2) * log2(p(Y=1|C=2)) - p(Y=0|C=2) * log2(p(Y=0|C=2)) ) + p(C=1) *  ( - p(Y=1|C=1) * log2(p(Y=1|C=1)) - p(Y=0|C=1) * log2(p(Y=0|C=1)) ) + p(C=0) * - p(Y=1|C=0) * log2(p(Y=1|C=0)) - p(Y=0|C=0) * log2(p(Y=0|C=0)) )
 
-I(Y;C) = H(Y) - ( 3/7 * ( - 2/3 * log2(2/3) - 1/3 * log2 (1/3)) + 1/7 * (0 - 1 * log(1)) + 2/7 * (- 1/2 log2(1/2) - 1/2 log2(1/2)) )
+I(Y;C) = H(Y) - ( 3/7 * ( - 2/3 * log2(2/3) - 1/3 * log2 (1/3)) + 1/7 * (0 - 1 * log(1)) + 3/7 * (- 2/3 * log2(2/3) - 1/3 * log2 (1/3)) )
 
-I(Y;C) = H(Y) - ( 3/7 * ( - 2/3 * log2(2/3) - 1/3 * log2 (1/3)) + 0 + 2/7) = H(Y) - 0.5957
+I(Y;C) = H(Y) - ( 2 * 3/7 * ( - 2/3 * log2(2/3) - 1/3 * log2 (1/3)) + 0) = H(Y) - 0.7871
 
-I(Y;C) = 0.3895
+I(Y;C) = 0.1981
 
 5. We chose to split on the attribute that has the highest mutual information with H: attribute A. 
 

@@ -102,10 +102,12 @@ def get_conditional_entropy(csv_lists,label,cond_list):
 			for possible_val, number_of_possible_val in number_of_values_of_cond.items():
 				proba = float(number_of_possible_val)/n
 				conditional_entropy = get_conditional_entropy(csv_lists,label,[(cond,possible_val)])
+				# print(proba,conditional_entropy)
 				entropy += proba * conditional_entropy
 			return entropy
 		else :
 			Y = get_column_by_label_knowing_cond(csv_lists,label,[cond])
+			# print(Y)
 			return compute_entropy(Y)
 
 def get_mutual_information(csv_lists,Y,A):
