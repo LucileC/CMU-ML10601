@@ -31,7 +31,7 @@ I(Y;C) = H(Y) - H(Y|C)
 
 I(Y;C) = H(Y) - ( p(C=2) * H(Y|C=2) + p(C=1) * H(Y|C=1) + p(C=0) * H(Y|C=0) )
 
-I(Y;C) = H(Y) - ( p(C=2) *  ( - p(Y=1|C=2) * log2(p(Y=1|C=2)) - p(Y=0|C=2) * log2(p(Y=0|C=2)) ) + p(C=2) *  ( - p(Y=1|C=1) * log2(p(Y=1|C=1)) - p(Y=0|C=1) * log2(p(Y=0|C=1)) ) + p(C=0) * - p(Y=1|C=0) * log2(p(Y=1|C=0)) - p(Y=0|C=0) * log2(p(Y=0|C=0)) )
+I(Y;C) = H(Y) - ( p(C=2) *  ( - p(Y=1|C=2) * log2(p(Y=1|C=2)) - p(Y=0|C=2) * log2(p(Y=0|C=2)) ) + p(C=1) *  ( - p(Y=1|C=1) * log2(p(Y=1|C=1)) - p(Y=0|C=1) * log2(p(Y=0|C=1)) ) + p(C=0) * - p(Y=1|C=0) * log2(p(Y=1|C=0)) - p(Y=0|C=0) * log2(p(Y=0|C=0)) )
 
 I(Y;C) = H(Y) - ( 3/7 * ( - 2/3 * log2(2/3) - 1/3 * log2 (1/3)) + 1/7 * (0 - 1 * log(1)) + 2/7 * (- 1/2 log2(1/2) - 1/2 log2(1/2)) )
 
@@ -53,6 +53,29 @@ I(Y;B|A=1) = H(Y|A=1) - ( p(B=1|A=1) *  ( - p(Y=1|B=1,A=1) * log2(p(Y=1|B=1,A=1)
 
 I(Y;B|A=1) = H(Y|A=1) - ( 3/4 * ( - 2/3 * log2(2/3) - 1/3 * log2(1/3) ) + 1/4 * (-1 * log2(1) - 0) )
 
-I(Y;B|A=1) = H(Y|A=1) - ( 3/4 * ( - 2/3 * log2(2/3) - 1/3 * log2(1/3) ) ) = H(Y|A=1) - 0. = 0.1226
+I(Y;B|A=1) = H(Y|A=1) - ( 3/4 * ( - 2/3 * log2(2/3) - 1/3 * log2(1/3) ) ) = 0.1226
+
+On the other hand, we have:
+
+I(Y;C|A=1) = H(Y|A=1) - H(Y|C,A=1)
+
+I(Y;C|A=1) = H(Y|A=1) - ( p(C=2|A=1) * H(Y|C=2,A=1) + p(C=1|A=1) * H(Y|C=1,A=1) + p(C=0|A=1) * H(Y|C=0,A=1) )
+
+I(Y;C|A=1) = H(Y|A=1) - ( p(C=2|A=1) *  ( - p(Y=1|C=2,A=1) * log2(p(Y=1|C=2,A=1)) - p(Y=0|C=2,A=1) * log2(p(Y=0|C=2,A=1)) ) + p(C=1,A=1) *  ( - p(Y=1|C=1,A=1) * log2(p(Y=1|C=1,A=1)) - p(Y=0|C=1,A=1) * log2(p(Y=0|C=1,A=1)) ) + p(C=0|A=1) * - p(Y=1|C=0,A=1) * log2(p(Y=1|C=0,A=1)) - p(Y=0|C=0,A=1) * log2(p(Y=0|C=0,A=1)) )
+
+I(Y;C|A=1) = H(Y|A=1) - ( 2/4 * ( - 2/2 * log2(2/2) - 0 ) + 0 + 2/4 * ( - 1/2 * log2 (1/2) - 1/2 * log2 (1/2)) )
+
+I(Y;C|A=1) = H(Y|A=1) - ( 2/4 * 0 + 0 + 2/4 * 1) = H(Y|A=1) - 0.5 = 0.4852
+
+We have I(Y;C|A=1) > I(Y;B|A=1), so we should split on C.
+
+7. We splitted on A and on C, so we have a tree of depth 2. The only uncertain case left is when A = 1 and C = 0. We then need to split on B. We will thus have a tree of depth 3. (given that we have 3 attributes, depth 3 is the maximal depth.)
+
+8.  
+
+*A* ---> = 0 ---> _Y = 0_
+  ---> = 1 ---> *C* ---> = 0 ---> *B* ---> = 0 ---> _Y = 1_
+  							  	    ---> = 1 ---> _Y = 0_
+  				  ---> = 2 ---> _Y = 1_
 
 
