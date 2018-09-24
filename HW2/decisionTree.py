@@ -1,17 +1,7 @@
 import inspect
 import argparse
 import csv 
-
-# def mutual_information(vec1,vec2):
-
-
-def test(input):
-	with open(input,'rb') as fin:
-		csv_reader = csv.reader(fin)
-		csv_lists = inspect.get_csv_lists(csv_reader)
-		# print(inspect.get_column_by_label_knowing_cond(csv_lists,'Y',[('A','1'),('C','0')]))
-		# print(inspect.get_conditional_entropy(csv_lists,'Y',['C']))
-		print(inspect.get_mutual_information(csv_lists,'Y','C'))
+import unit_test as utest
 
 
 if __name__ == '__main__':
@@ -29,4 +19,6 @@ if __name__ == '__main__':
 
 	# decisionTree(args.train_input,args.test_input,args.max_depth,args.train_out,args.test_out,args.metrics_out)
 
-	test(args.train_input)
+	# test(args.train_input)
+	utest.unit_test_entropy(args.train_input)
+	utest.unit_test_mutual_information(args.train_input)

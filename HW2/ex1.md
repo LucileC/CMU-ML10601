@@ -14,7 +14,7 @@ I(Y;A) = 0.5216
 
 3. Mutual information of Y and B : I(Y;B)
 
-I(Y;B) = H(Y) - H(Y|A)
+I(Y;B) = H(Y) - H(Y|B)
 
 I(Y;B) = H(Y) - ( p(B=1) * H(Y|B=1) + p(B=0) * H(Y|B=0) )
 
@@ -39,7 +39,7 @@ I(Y;C) = H(Y) - ( 2 * 3/7 * ( - 2/3 * log2(2/3) - 1/3 * log2 (1/3)) + 0) = H(Y) 
 
 I(Y;C) = 0.1981
 
-5. We chose to split on the attribute that has the highest mutual information with H: attribute A. 
+5. We chose to split on the attribute that has the highest mutual information with Y: attribute A. 
 
 6. When we split on A, we know that A=0 => Y=0. We then only need to split for the case where A = 1.
 
@@ -65,7 +65,7 @@ I(Y;C|A=1) = H(Y|A=1) - ( p(C=2|A=1) *  ( - p(Y=1|C=2,A=1) * log2(p(Y=1|C=2,A=1)
 
 I(Y;C|A=1) = H(Y|A=1) - ( 2/4 * ( - 2/2 * log2(2/2) - 0 ) + 0 + 2/4 * ( - 1/2 * log2 (1/2) - 1/2 * log2 (1/2)) )
 
-I(Y;C|A=1) = H(Y|A=1) - ( 2/4 * 0 + 0 + 2/4 * 1) = H(Y|A=1) - 0.5 = 0.4852
+I(Y;C|A=1) = H(Y|A=1) - ( 2/4 * 0 + 0 + 2/4 * 1) = H(Y|A=1) - 0.5 = 0.3113
 
 We have I(Y;C|A=1) > I(Y;B|A=1), so we should split on C.
 

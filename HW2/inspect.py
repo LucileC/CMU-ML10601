@@ -26,9 +26,12 @@ def get_column(csv_lists,col_idx):
 	If label is not present, returns False.
 '''
 def get_column_by_label(csv_lists,label):
-	idx = csv_lists[0].index(label)
-	if idx >= 0:
-		return get_column(csv_lists,idx)
+	try:
+		idx = csv_lists[0].index(label)
+		if idx >= 0:
+			return get_column(csv_lists,idx)
+	except ValueError:
+		print('Could not find label %s'%label)
 	return False
 
 '''
@@ -81,37 +84,55 @@ def compute_entropy(col_vec):
 		entropy -=  f * log2(f)
 	return entropy
 
-'''
-	Gets the entropy of a variable (label) given a dataset (list of lists)
-'''
-def get_entropy(csv_lists,label):
-	X = get_column_by_label(csv_lists,label)
-	return compute_entropy(X)
 
 '''
 	Gets the conditional entropy of a variable (label) given a dataset (list of lists) and a condition.
 	cond_list : list/conjunction of conditions : [ cond1, cond2, ...] with cond as a variable (X) or cond as a tuple (X,1) for X=1.
 '''
-def get_conditional_entropy(csv_lists,label,cond_list):
-	for cond in cond_list:
-		## cond is just a variable
+def get_entropy(csv_lists,label,cond_list=None):
+
+	## just simple entropy
+	if cond_list == None:
+		X = get_column_by_label(csv_lists,label)
+		if X:
+			return compute_entropy(X)
+
+	## conditional entropy
+	else:
+		cond = cond_list[0]
+		## cond is just a variable, we are computing something of the form H(Y|A,[B=x,...])
 		if isinstance(cond,str):
-			number_of_values_of_cond = get_number_of_each_elt(get_column_by_label(csv_lists,cond))
+			if len(cond_list) == 1:
+				vect = get_column_by_label(csv_lists,cond)
+				number_of_values_of_cond = get_number_of_each_elt(vect)
+			else :
+				vect = get_column_by_label_knowing_cond(csv_lists,cond,cond_list[1:])
+				number_of_values_of_cond = get_number_of_each_elt(vect)
 			entropy = 0
-			n = len(csv_lists) - 1
+			n = len(vect)
 			for possible_val, number_of_possible_val in number_of_values_of_cond.items():
 				proba = float(number_of_possible_val)/n
-				conditional_entropy = get_conditional_entropy(csv_lists,label,[(cond,possible_val)])
+				if len(cond_list) == 1:
+					conditional_entropy = get_entropy(csv_lists,label,[(cond,possible_val)])
+				else:
+					conditional_entropy = get_entropy(csv_lists,label,[(cond,possible_val)]+cond_list[1:])
+					# print(number_of_possible_val,n)
 				# print(proba,conditional_entropy)
 				entropy += proba * conditional_entropy
 			return entropy
+		## all values are specified in the condition: we are computing something like H(Y|A=x,B=y,...)
 		else :
-			Y = get_column_by_label_knowing_cond(csv_lists,label,[cond])
-			# print(Y)
-			return compute_entropy(Y)
+			Y = get_column_by_label_knowing_cond(csv_lists,label,cond_list)
+			if Y:
+				return compute_entropy(Y)
 
-def get_mutual_information(csv_lists,Y,A):
-	return get_entropy(csv_lists,Y) - get_conditional_entropy(csv_lists,Y,[A])
+def get_mutual_information(csv_lists,Y,A,cond_list=None):
+	if cond_list:
+		H1 = get_entropy(csv_lists,Y,cond_list)
+		H2 = get_entropy(csv_lists,Y,[A]+cond_list)
+		return H1 - H2
+	else :
+		return get_entropy(csv_lists,Y) - get_entropy(csv_lists,Y,[A])
 
 def get_majority_vote(number_of_each_label):
 	max = 0
