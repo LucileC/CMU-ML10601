@@ -24,30 +24,42 @@ def get_column(csv_lists,col_idx):
 '''
 	Returns a vector of the column corresponding to label.
 	If label is not present, returns False.
+	cond : list of conditions : [ (X1,0), (X2,0), ...]
 '''
-def get_column_by_label(csv_lists,label):
-	try:
-		idx = csv_lists[0].index(label)
-		if idx >= 0:
-			return get_column(csv_lists,idx)
-	except ValueError:
-		print('Could not find label %s'%label)
+def get_column_by_label(csv_lists,label,cond=None):
+	if cond:
+		Y_vect = get_column_by_label(csv_lists,label)
+		cond_vectors = list()
+		for (X,c) in cond :
+			X_vect = get_column_by_label(csv_lists,X)
+			indexes_val_in_X = indexes(X_vect,c)
+			for i in range(len(Y_vect)):
+				if i not in indexes_val_in_X:
+					Y_vect[i] = None
+		return [v for v in Y_vect if v]
+	else:
+		try:
+			idx = csv_lists[0].index(label)
+			if idx >= 0:
+				return get_column(csv_lists,idx)
+		except ValueError:
+			print('Could not find label %s'%label)
 	return False
 
-'''
-	Returns a vector type Y|X=0: values of Y knowing X = 0.
-	cond_list : list of conditions : [ (X1,0), (X2,0), ...]
-'''
-def get_column_by_label_knowing_cond(csv_lists,Y,cond_list):
-	Y_vect = get_column_by_label(csv_lists,Y)
-	cond_vectors = list()
-	for (X,cond) in cond_list :
-		X_vect = get_column_by_label(csv_lists,X)
-		indexes_val_in_X = indexes(X_vect,cond)
-		for i in range(len(Y_vect)):
-			if i not in indexes_val_in_X:
-				Y_vect[i] = None
-	return [v for v in Y_vect if v]
+# '''
+# 	Returns a vector type Y|X=0: values of Y knowing X = 0.
+# 	cond_list : list of conditions : [ (X1,0), (X2,0), ...]
+# '''
+# def get_column_by_label_knowing_cond(csv_lists,Y,cond_list):
+# 	Y_vect = get_column_by_label(csv_lists,Y)
+# 	cond_vectors = list()
+# 	for (X,cond) in cond_list :
+# 		X_vect = get_column_by_label(csv_lists,X)
+# 		indexes_val_in_X = indexes(X_vect,cond)
+# 		for i in range(len(Y_vect)):
+# 			if i not in indexes_val_in_X:
+# 				Y_vect[i] = None
+# 	return [v for v in Y_vect if v]
 
 '''
 	Builds a list of lists from a csv read (easier to manipulate)
@@ -61,8 +73,8 @@ def get_csv_lists(csv_reader):
 '''
 	Returns a list of the values that variable "label" takes in dataset csv_lists
 '''
-def get_possible_values(csv_lists,label):
-	X = get_column_by_label(csv_lists,label)
+def get_possible_values(csv_lists,label,cond=None):
+	X = get_column_by_label(csv_lists,label,cond)
 	return list(set(X))
 
 def get_number_of_each_elt(col_vec):
@@ -106,7 +118,7 @@ def get_entropy(csv_lists,label,cond_list=None):
 				vect = get_column_by_label(csv_lists,cond)
 				number_of_values_of_cond = get_number_of_each_elt(vect)
 			else :
-				vect = get_column_by_label_knowing_cond(csv_lists,cond,cond_list[1:])
+				vect = get_column_by_label(csv_lists,cond,cond_list[1:])
 				number_of_values_of_cond = get_number_of_each_elt(vect)
 			entropy = 0
 			n = len(vect)
@@ -122,13 +134,15 @@ def get_entropy(csv_lists,label,cond_list=None):
 			return entropy
 		## all values are specified in the condition: we are computing something like H(Y|A=x,B=y,...)
 		else :
-			Y = get_column_by_label_knowing_cond(csv_lists,label,cond_list)
+			Y = get_column_by_label(csv_lists,label,cond_list)
 			if Y:
 				return compute_entropy(Y)
 
 def get_mutual_information(csv_lists,Y,A,cond_list=None):
 	if cond_list:
 		H1 = get_entropy(csv_lists,Y,cond_list)
+		if H1 == None:
+			return 0
 		H2 = get_entropy(csv_lists,Y,[A]+cond_list)
 		return H1 - H2
 	else :

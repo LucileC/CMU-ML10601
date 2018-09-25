@@ -1,5 +1,6 @@
 import csv
 import inspect
+import argparse
 
 def get_condition_string(cond_list):
 	s = ''
@@ -75,3 +76,19 @@ def unit_test_mutual_information(input):
 				print('Warning: Unable to compute %s'%get_entropy_string(triple))
 				b = False
 	return b
+
+
+if __name__ == '__main__':
+
+	parser = argparse.ArgumentParser(description='Homework 2.')
+	parser.add_argument('train_input', metavar='train_input', type=str, help='path to the training input .csv file')
+	parser.add_argument('test_input', metavar='test_input', type=str, help='path to the test input .csv file')
+	parser.add_argument('max_depth', metavar='max_depth', type=str, help='maximum depth to which the tree should be built')
+	parser.add_argument('train_out', metavar='train_out', type=str, help='path of output .labels file to which the predictions on the training data should be written')
+	parser.add_argument('test_out', metavar='test_out', type=str, help='path of output .labels file to which the predictions on the test data should be written')
+	parser.add_argument('metrics_out', metavar='metrics_out', type=str, help='path of the output .txt file to which metrics such as train and test error should be written')
+	parser.add_argument('--verbose', action="count", help='Printout information.')
+
+	args = parser.parse_args()
+
+	
