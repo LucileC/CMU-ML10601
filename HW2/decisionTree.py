@@ -16,6 +16,11 @@ class Node:
 		else :
 			self.children = [[attribute_value,node]]
 
+	def is_leaf(self):
+		if self.children == None or len(self.children)  == 0:
+			return True
+		return False
+
 	def get_children_number(self):
 		if self.children:
 			return len(self.children)
@@ -30,18 +35,29 @@ class Node:
 			node = node.parent
 		return cond
 
-	def print_tree(self,i):
+	def print_tree(self):
 		if self.parent:
 			print('%s child of %s = %s (has %d children)'%(self.attribute,self.parent.attribute,self.parent_val,self.get_children_number()))
 		else :
 			print('%s root'%self.attribute)
-		if self.get_children_number()>0 and i < 10:
+		if self.get_children_number()>0:
 			for (_,child) in self.children:
-				child.print_tree(i+1)
+				child.print_tree()
 
-def unambiguous(data):
-	if len(list(set(data))) == 1:
-		return True
+	def decide(self,attributes_value_dict):
+		node = self
+		while not node.is_leaf():
+			# print(node.attribute)
+			branch_value = attributes_value_dict[node.attribute]
+			child_found = False
+			for (val,child) in node.children:
+				if val == branch_value:
+					node = child
+					child_found = True
+			if not child_found:
+				return 'Unable to make a decision'
+		return node.attribute
+
 
 def get_attributes_and_label(csv_lists):
 	attributes = csv_lists[0][0:-1]
@@ -60,52 +76,111 @@ def next_node_decision_tree(csv_lists,label,attributes,cond=None):
 	return att_max, I_max
 
 
-def decision_tree_rec(csv_lists,attributes,label,cond=list(),parent=None,parent_val=None):
-	# print(attributes)
-	att, I = next_node_decision_tree(csv_lists,label,attributes,cond)
-	next_node = Node(att,parent,parent_val)
-	possible_values_att = inspect.get_possible_values(csv_lists,att)
-	children_I_list = list()
-	for possible_val in possible_values_att:
-		new_attributes = attributes[:]
-		# print(att,possible_val)
-		new_cond = cond[:]
-		new_cond.append((att,possible_val))
-		Y_knowing_cond = inspect.get_column_by_label(csv_lists,label,new_cond)
-		if Y_knowing_cond:
-			## si une seule valeur de Y (labe) possible, alors on s arrete et on donne cette valeur au noeud enfant
-			child = None
-			if len(list(set(Y_knowing_cond))) == 1:
-				child = Node(Y_knowing_cond[0],next_node,possible_val)
-				# print('leaf node here %s, has %d children)'%(child.attribute,child.get_children_number()))
-			else:
-				# print(new_attributes,att)
-				new_attributes.remove(att)
-				if len(new_attributes) > 0:
-					# att, I = next_node_decision_tree(csv_lists,label=label,attributes=new_attributes,cond=new_cond)
-					child = decision_tree_rec(csv_lists,attributes=new_attributes,label=label,cond=new_cond,parent=next_node,parent_val=possible_val)
-				# else :
-				# 	child = Node('Leaf',next_node,possible_val)
-			if child:
-				next_node.add_child(child,possible_val)
-				print('%s child of %s = %s (and has %d children)'%(child.attribute,att,possible_val,child.get_children_number()))
+def decision_tree_rec(csv_lists,attributes,label,depth,cond=list(),parent=None,parent_val=None):
+	# print('depth=%d'%depth)
+
+	if depth == 0:
+		Y_knowing_cond = inspect.get_column_by_label(csv_lists,label,cond)
+		number_of_each_label = inspect.get_number_of_each_elt(Y_knowing_cond)
+		majority_vote = inspect.get_majority_vote(number_of_each_label)
+		next_node = Node(majority_vote,None)
+
+
+	else :
+		att, I = next_node_decision_tree(csv_lists,label,attributes,cond)
+		next_node = Node(att,parent,parent_val)
+		depth -= 1
+		possible_values_att = inspect.get_possible_values(csv_lists,att)
+		children_I_list = list()
+		for possible_val in possible_values_att:
+			new_attributes = attributes[:]
+			new_cond = cond[:]
+			new_cond.append((att,possible_val))
+			Y_knowing_cond = inspect.get_column_by_label(csv_lists,label,new_cond)
+			if Y_knowing_cond:
+				## si une seule valeur de Y (labe) possible, alors on s arrete et on donne cette valeur au noeud enfant
+				child = None
+				if len(list(set(Y_knowing_cond))) == 1:
+					child = Node(Y_knowing_cond[0],next_node,possible_val)
+				else:
+					new_attributes.remove(att)
+					if len(new_attributes) > 0 and depth>0:
+						# att, I = next_node_decision_tree(csv_lists,label=label,attributes=new_attributes,cond=new_cond)
+						child = decision_tree_rec(csv_lists,attributes=new_attributes,label=label,depth=depth,cond=new_cond,parent=next_node,parent_val=possible_val)
+					elif  depth==0:
+						number_of_each_label = inspect.get_number_of_each_elt(Y_knowing_cond)
+						majority_vote = inspect.get_majority_vote(number_of_each_label)
+						child = Node(attribute=majority_vote,parent=next_node,parent_val=possible_val,children=None)
+				if child:
+					next_node.add_child(child,possible_val)
+					# print('%s child of %s = %s (and has %d children)'%(child.attribute,att,possible_val,child.get_children_number()))
+				# else:
+				# 	print('no child')
 	return next_node
 
 
 
-def decision_tree(csv_lists):
+def decision_tree_train(csv_lists,max_depth):
 	attributes, label = get_attributes_and_label(csv_lists)
-	return decision_tree_rec(csv_lists,attributes,label)
+	return decision_tree_rec(csv_lists,attributes,label,max_depth)
 	# return my_tree(csv_lists,label,attributes)
 
+'''
+	Returns a list of dictionaries
+'''
+def get_examples(csv_lists):
+	examples_list = list()
+	for i in range(1,len(csv_lists)):
+		example = dict()
+		for j in range(len(csv_lists[i])):
+			example[csv_lists[0][j]] = csv_lists[i][j]
+		examples_list.append(example)
+	return examples_list
 
-def test(input):
-	with open(input,'rb') as fin:
-		csv_reader = csv.reader(fin)
-		csv_lists = inspect.get_csv_lists(csv_reader)
-		dt = decision_tree(csv_lists)
-		print('---------')
-		dt.print_tree(0)
+def run(train_input,test_input,max_depth,train_out,test_out,metrics_out):
+
+	## training the decision tree
+	ftrain = open(train_input,'rb')
+	csv_reader_train = csv.reader(ftrain)
+	csv_lists_train = inspect.get_csv_lists(csv_reader_train)
+	dt = decision_tree_train(csv_lists_train,2)
+	print('---------')
+	dt.print_tree()
+	print('---------')
+
+	## test on training set
+	train_examples = get_examples(csv_lists_train)
+	# print(train_examples)
+	# ex = train_examples[0]
+	# print(ex)
+	# label = dt.decide(ex)
+	# print(label)
+	flabeltrain = open(train_out,'w')
+	for example in train_examples:
+		label = dt.decide(example)
+		# print(label)
+		flabeltrain.write('%s\n'%label)
+
+
+	# test on test set
+	ftest = open(test_input,'rb')
+	csv_reader_test = csv.reader(ftest)
+	csv_lists_test = inspect.get_csv_lists(csv_reader_test)
+	test_examples = get_examples(csv_lists_test)
+	flabeltest = open(test_out,'w')
+	for example in test_examples:
+		label = dt.decide(example)
+		print(label)
+		flabeltest.write('%s\n'%label)
+
+
+
+	# to_classify = {'A':'0','B':'1','C':'0'}
+	# print(dt.decide(to_classify))
+
+	ftrain.close()
+	flabeltrain.close()
+
 
 if __name__ == '__main__':
 
@@ -120,8 +195,4 @@ if __name__ == '__main__':
 
 	args = parser.parse_args()
 
-	# decisionTree(args.train_input,args.test_input,args.max_depth,args.train_out,args.test_out,args.metrics_out)
-
-	test(args.train_input)
-	# utest.unit_test_entropy(args.train_input)
-	# utest.unit_test_mutual_information(args.train_input)
+	run(args.train_input,args.test_input,args.max_depth,args.train_out,args.test_out,args.metrics_out)
