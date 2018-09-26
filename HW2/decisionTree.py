@@ -168,7 +168,7 @@ def test_and_get_error(csv_lists,decision_tree_root,output_file):
 def run(train_input,test_input,max_depth,train_out,test_out,metrics_out):
 
 	## training the decision tree
-	ftrain = open(train_input,'rb')
+	ftrain = open(train_input,'r')
 	csv_reader_train = csv.reader(ftrain)
 	csv_lists_train = inspect.get_csv_lists(csv_reader_train)
 	dt = decision_tree_train(csv_lists_train,int(max_depth))
@@ -180,7 +180,7 @@ def run(train_input,test_input,max_depth,train_out,test_out,metrics_out):
 	train_error = test_and_get_error(csv_lists_train,dt,train_out)
 
 	# test on test set
-	ftest = open(test_input,'rb')
+	ftest = open(test_input,'r')
 	csv_reader_test = csv.reader(ftest)
 	csv_lists_test = inspect.get_csv_lists(csv_reader_test)
 	test_error = test_and_get_error(csv_lists_test,dt,test_out)
