@@ -4,11 +4,13 @@ import csv
 import unit_test as utest
 
 class Node:
-	def __init__(self,attribute,parent=None,parent_val=None,children=None):
+	def __init__(self,attribute,parent=None,parent_val=None,Y=None,children=None):
 		self.attribute = attribute
 		self.parent = parent
 		self.parent_val = parent_val
 		self.children = children
+		# self.depth = depth
+		self.Y = Y
 
 	def add_child(self,node,attribute_value):
 		if self.children:
@@ -43,6 +45,40 @@ class Node:
 		if self.get_children_number()>0:
 			for (_,child) in self.children:
 				child.print_tree()
+
+	def get_depth(self,depth=0):
+		if self.parent == None:
+			return depth
+		else:
+			return self.parent.get_depth(depth+1)
+
+
+	def get_Y_string(self):
+		if self.Y==None:
+			print('No values for this node!')
+		else:
+			s = '[ '
+			for val in list(set(self.Y)):
+				s += '%d %s / '%(self.Y.count(val),val)
+			s = s[:-2] + ']'
+		return s
+
+	def get_indent_string(self):
+		s = ''
+		for i in range(self.get_depth()):
+			s += '| '
+		return s
+
+	def print_tree2(self):
+		s = ''
+		if self.parent:
+			s += self.get_indent_string() + self.parent.attribute + ' = ' + self.parent_val + ': '
+		s+= self.get_Y_string()
+		print(s)
+		if self.get_children_number()>0:
+			for (_,child) in self.children:
+				child.print_tree2()
+
 
 	def decide(self,attributes_value_dict):
 		node = self
@@ -82,39 +118,50 @@ def decision_tree_rec(csv_lists,attributes,label,depth,cond=list(),parent=None,p
 		Y_knowing_cond = inspect.get_column_by_label(csv_lists,label,cond)
 		number_of_each_label = inspect.get_number_of_each_elt(Y_knowing_cond)
 		majority_vote = inspect.get_majority_vote(number_of_each_label)
-		next_node = Node(majority_vote,None)
+		## leaf node
+		next_node = Node(attribute=majority_vote,parent=None,Y=Y_knowing_cond)
 
 
 	else :
 		att, I = next_node_decision_tree(csv_lists,label,attributes,cond)
-		next_node = Node(att,parent,parent_val)
-		depth -= 1
-		possible_values_att = inspect.get_possible_values(csv_lists,att)
-		children_I_list = list()
-		for possible_val in possible_values_att:
-			# print(att,possible_val)
-			new_attributes = attributes[:]
-			new_cond = cond[:]
-			new_cond.append((att,possible_val))
-			Y_knowing_cond = inspect.get_column_by_label(csv_lists,label,new_cond)
-			if Y_knowing_cond:
-				## si une seule valeur de Y (labe) possible, alors on s arrete et on donne cette valeur au noeud enfant
-				child = None
-				if len(list(set(Y_knowing_cond))) == 1:
-					child = Node(Y_knowing_cond[0],next_node,possible_val)
-				else:
-					new_attributes.remove(att)
-					if len(new_attributes) > 0 and depth>0:
-						child = decision_tree_rec(csv_lists,attributes=new_attributes,label=label,depth=depth,cond=new_cond,parent=next_node,parent_val=possible_val)
-					elif len(new_attributes) == 0 or depth==0:
-						number_of_each_label = inspect.get_number_of_each_elt(Y_knowing_cond)
-						majority_vote = inspect.get_majority_vote(number_of_each_label)
-						child = Node(attribute=majority_vote,parent=next_node,parent_val=possible_val,children=None)
-				if child:
-					next_node.add_child(child,possible_val)
+		if I == 0:
+			#if we do not gain abything by expending the tree, stop and create a leaf node.
+			Y_knowing_cond = inspect.get_column_by_label(csv_lists,label,cond)
+			number_of_each_label = inspect.get_number_of_each_elt(Y_knowing_cond)
+			majority_vote = inspect.get_majority_vote(number_of_each_label)
+			## leaf node
+			next_node = Node(attribute=majority_vote,parent=parent,parent_val=parent_val,Y=Y_knowing_cond,children=None)	
+		else:
+			next_node = Node(att,parent=parent,parent_val=parent_val,Y=inspect.get_column_by_label(csv_lists,label,cond),children=None)
+			depth -= 1
+			possible_values_att = inspect.get_possible_values(csv_lists,att) # est ce qu il ne fait pas la condition ici aussi??
+			children_I_list = list()
+			for possible_val in possible_values_att:
+				# print(att,possible_val)
+				new_attributes = attributes[:]
+				new_cond = cond[:]
+				new_cond.append((att,possible_val))
+				Y_knowing_cond = inspect.get_column_by_label(csv_lists,label,new_cond)
+				if Y_knowing_cond:
+					## si une seule valeur de Y (labe) possible, alors on s arrete et on donne cette valeur au noeud enfant
+					child = None
+					if len(list(set(Y_knowing_cond))) == 1:
+						## leaf node
+						child = Node(attribute=Y_knowing_cond[0],parent=next_node,parent_val=possible_val,Y=Y_knowing_cond)
+					else:
+						new_attributes.remove(att)
+						if len(new_attributes) > 0 and depth>0:
+							child = decision_tree_rec(csv_lists,attributes=new_attributes,label=label,depth=depth,cond=new_cond,parent=next_node,parent_val=possible_val)
+						elif len(new_attributes) == 0 or depth==0:
+							number_of_each_label = inspect.get_number_of_each_elt(Y_knowing_cond)
+							majority_vote = inspect.get_majority_vote(number_of_each_label)
+							## leaf node
+							child = Node(attribute=majority_vote,parent=next_node,parent_val=possible_val,Y=Y_knowing_cond,children=None)
+					if child:
+						next_node.add_child(child,possible_val)
 					# print('%s child of %s = %s (and has %d children)'%(child.attribute,att,possible_val,child.get_children_number()))
-				# else:
-				# 	print('no child')
+					# else:
+					# 	print('no child')
 	return next_node
 
 
@@ -173,7 +220,7 @@ def run(train_input,test_input,max_depth,train_out,test_out,metrics_out):
 	csv_lists_train = inspect.get_csv_lists(csv_reader_train)
 	dt = decision_tree_train(csv_lists_train,int(max_depth))
 	print('---------')
-	dt.print_tree()
+	dt.print_tree2()
 	print('---------')
 
 	## test on training set

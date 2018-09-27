@@ -1,5 +1,7 @@
 # 10601 Introduction to Machine Learning (Spring 2018), Homework 2: Decision Trees, 1: Written Questions
 
+## Warm up
+
 1. Entropy of Y: H(Y) = - p(Y=1) * log2(p(Y=1)) - p(Y=0) * log2(p(Y=0)) = - (3/7) * log2 (3/7) - (4/7) * log2 (4/7) ~ 0.9852.
 
 2. Mutual information of Y and A : I(Y;A) = H(Y) - H(Y|A)
@@ -76,5 +78,23 @@ We have I(Y;C|A=1) > I(Y;B|A=1), so we should split on C.
 <p align="center">
 <img src="https://github.com/LucileC/CMU-ML10601/blob/master/HW2/decisiontree1.png ">
 </p>
+
+## Empirical Questions
+
+1. Train and test errors on education and politicians dataset, depending on the depth of the tree.
+
+| **Dataset** | **Max-Depth** | **Tain Error** | **Test Error** |
+|-------------|---------------|----------------|----------------|
+| politician  | 0             | 0.4430         | 0.5040         |
+| politician  | 1             | 0.2013         | 0.2169         |
+| politician  | 2             | 0.1342         | 0.1566         |
+| politician  | 3             | 0.1145         | 0.1687         |
+| politician  | 4             | 0.1074         | 0.2048         |
+| education   | 0             | 0.3250         | 0.3100         |
+| education   | 1             | 0.1950         | 0.2300         |
+| education   | 2             | 0.1950         | 0.2300         |
+| education   | 3             | 0.1700         | 0.2050         |
+| education   | 4             | 0.1300         | 0.1600         |
+
 
 
