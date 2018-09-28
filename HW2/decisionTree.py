@@ -1,7 +1,10 @@
-import inspect
+import myinspect as insp
 import argparse
 import csv 
 import unit_test as utest
+import matplotlib
+import matplotlib.pyplot as plt
+
 
 class Node:
 	def __init__(self,attribute,parent=None,parent_val=None,Y=None,children=None):
@@ -105,7 +108,7 @@ def next_node_decision_tree(csv_lists,label,attributes,cond=None):
 	att_max = None
 	for att in attributes:
 	# 	print('Computes %s'%utest.get_mutual_information_string((label,att,cond)))
-		I = inspect.get_mutual_information(csv_lists,label,att,cond)
+		I = insp.get_mutual_information(csv_lists,label,att,cond)
 		if I > I_max:
 			I_max = I
 			att_max = att
@@ -115,9 +118,9 @@ def next_node_decision_tree(csv_lists,label,attributes,cond=None):
 def decision_tree_rec(csv_lists,attributes,label,depth,cond=list(),parent=None,parent_val=None):
 
 	if depth == 0:
-		Y_knowing_cond = inspect.get_column_by_label(csv_lists,label,cond)
-		number_of_each_label = inspect.get_number_of_each_elt(Y_knowing_cond)
-		majority_vote = inspect.get_majority_vote(number_of_each_label)
+		Y_knowing_cond = insp.get_column_by_label(csv_lists,label,cond)
+		number_of_each_label = insp.get_number_of_each_elt(Y_knowing_cond)
+		majority_vote = insp.get_majority_vote(number_of_each_label)
 		## leaf node
 		next_node = Node(attribute=majority_vote,parent=None,Y=Y_knowing_cond)
 
@@ -126,22 +129,22 @@ def decision_tree_rec(csv_lists,attributes,label,depth,cond=list(),parent=None,p
 		att, I = next_node_decision_tree(csv_lists,label,attributes,cond)
 		if I == 0:
 			#if we do not gain abything by expending the tree, stop and create a leaf node.
-			Y_knowing_cond = inspect.get_column_by_label(csv_lists,label,cond)
-			number_of_each_label = inspect.get_number_of_each_elt(Y_knowing_cond)
-			majority_vote = inspect.get_majority_vote(number_of_each_label)
+			Y_knowing_cond = insp.get_column_by_label(csv_lists,label,cond)
+			number_of_each_label = insp.get_number_of_each_elt(Y_knowing_cond)
+			majority_vote = insp.get_majority_vote(number_of_each_label)
 			## leaf node
 			next_node = Node(attribute=majority_vote,parent=parent,parent_val=parent_val,Y=Y_knowing_cond,children=None)	
 		else:
-			next_node = Node(att,parent=parent,parent_val=parent_val,Y=inspect.get_column_by_label(csv_lists,label,cond),children=None)
+			next_node = Node(att,parent=parent,parent_val=parent_val,Y=insp.get_column_by_label(csv_lists,label,cond),children=None)
 			depth -= 1
-			possible_values_att = inspect.get_possible_values(csv_lists,att) # est ce qu il ne fait pas la condition ici aussi??
+			possible_values_att = insp.get_possible_values(csv_lists,att) # est ce qu il ne fait pas la condition ici aussi??
 			children_I_list = list()
 			for possible_val in possible_values_att:
 				# print(att,possible_val)
 				new_attributes = attributes[:]
 				new_cond = cond[:]
 				new_cond.append((att,possible_val))
-				Y_knowing_cond = inspect.get_column_by_label(csv_lists,label,new_cond)
+				Y_knowing_cond = insp.get_column_by_label(csv_lists,label,new_cond)
 				if Y_knowing_cond:
 					## si une seule valeur de Y (labe) possible, alors on s arrete et on donne cette valeur au noeud enfant
 					child = None
@@ -153,8 +156,8 @@ def decision_tree_rec(csv_lists,attributes,label,depth,cond=list(),parent=None,p
 						if len(new_attributes) > 0 and depth>0:
 							child = decision_tree_rec(csv_lists,attributes=new_attributes,label=label,depth=depth,cond=new_cond,parent=next_node,parent_val=possible_val)
 						elif len(new_attributes) == 0 or depth==0:
-							number_of_each_label = inspect.get_number_of_each_elt(Y_knowing_cond)
-							majority_vote = inspect.get_majority_vote(number_of_each_label)
+							number_of_each_label = insp.get_number_of_each_elt(Y_knowing_cond)
+							majority_vote = insp.get_majority_vote(number_of_each_label)
 							## leaf node
 							child = Node(attribute=majority_vote,parent=next_node,parent_val=possible_val,Y=Y_knowing_cond,children=None)
 					if child:
@@ -195,21 +198,24 @@ def get_error(y,y_predict):
 
 def get_expected_values(csv_lists):
 	label = csv_lists[0][-1]
-	return inspect.get_column_by_label(csv_lists ,label)
+	return insp.get_column_by_label(csv_lists ,label)
 
-def test_and_get_error(csv_lists,decision_tree_root,output_file):
+def test_and_get_error(csv_lists,decision_tree_root,output_file=None):
 	examples = get_examples(csv_lists)
 	y_predict = list()
-	flabel = open(output_file,'w')
+	if output_file:
+		flabel = open(output_file,'w')
 	for example in examples:
 		label = decision_tree_root.decide(example)
 		y_predict.append(label)
 		# print(label)
-		flabel.write('%s\n'%label)
+		if output_file:
+			flabel.write('%s\n'%label)
 	## compute error on training set
 	y = get_expected_values(csv_lists)
 	error = get_error(y,y_predict)
-	flabel.close()
+	if output_file:
+		flabel.close()
 	return error
 
 def run(train_input,test_input,max_depth,train_out,test_out,metrics_out):
@@ -217,7 +223,7 @@ def run(train_input,test_input,max_depth,train_out,test_out,metrics_out):
 	## training the decision tree
 	ftrain = open(train_input,'r')
 	csv_reader_train = csv.reader(ftrain)
-	csv_lists_train = inspect.get_csv_lists(csv_reader_train)
+	csv_lists_train = insp.get_csv_lists(csv_reader_train)
 	dt = decision_tree_train(csv_lists_train,int(max_depth))
 	print('---------')
 	dt.print_tree2()
@@ -229,7 +235,7 @@ def run(train_input,test_input,max_depth,train_out,test_out,metrics_out):
 	# test on test set
 	ftest = open(test_input,'r')
 	csv_reader_test = csv.reader(ftest)
-	csv_lists_test = inspect.get_csv_lists(csv_reader_test)
+	csv_lists_test = insp.get_csv_lists(csv_reader_test)
 	test_error = test_and_get_error(csv_lists_test,dt,test_out)
 
 	error_string = 'error(train): %.12f\nerror(test): %.12f'%(train_error,test_error)
@@ -238,6 +244,40 @@ def run(train_input,test_input,max_depth,train_out,test_out,metrics_out):
 	with open(metrics_out,'w') as fmetrics:
 		fmetrics.write(error_string)
 
+def plot(points1_x,points1_y,points2_x,points2_y):
+	# pass
+	plt.plot(points1_x,points1_y,label='Train error')
+	plt.plot(points2_x,points2_y,label='Test error')
+	plt.xlabel('Depth depth of tree')
+	plt.ylabel('Error')
+	plt.title('Error on training and test sets against depth of decision tree')
+	plt.legend()
+	plt.show()
+
+
+
+def plot_errors_as_function_of_depth(train_input,test_input):
+	ftrain = open(train_input,'r')
+	csv_reader_train = csv.reader(ftrain)
+	csv_lists_train = insp.get_csv_lists(csv_reader_train)
+
+	ftest = open(test_input,'r')
+	csv_reader_test = csv.reader(ftest)
+	csv_lists_test = insp.get_csv_lists(csv_reader_test)
+
+	depths = list()
+	train_errors = list()
+	test_errors = list()
+	
+	for depth in range(len(csv_lists_train[0])-1):
+		dt = decision_tree_train(csv_lists_train,depth)
+		train_error = test_and_get_error(csv_lists_train,dt)
+		test_error = test_and_get_error(csv_lists_test,dt)
+		depths.append(depth)
+		train_errors.append(train_error)
+		test_errors.append(test_error)
+
+	plot(depths,train_errors,depths,test_errors)
 
 
 if __name__ == '__main__':
@@ -253,4 +293,6 @@ if __name__ == '__main__':
 
 	args = parser.parse_args()
 
-	run(args.train_input,args.test_input,args.max_depth,args.train_out,args.test_out,args.metrics_out)
+	# run(args.train_input,args.test_input,args.max_depth,args.train_out,args.test_out,args.metrics_out)
+
+	plot_errors_as_function_of_depth(args.train_input,args.test_input)

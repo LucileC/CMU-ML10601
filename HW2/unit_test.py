@@ -1,5 +1,5 @@
 import csv
-import inspect
+import inspect as insp
 import argparse
 
 def get_condition_string(cond_list):
@@ -30,7 +30,7 @@ def unit_test_entropy(input):
 	b = True
 	with open(input,'rb') as fin:
 		csv_reader = csv.reader(fin)
-		csv_lists = inspect.get_csv_lists(csv_reader)
+		csv_lists = insp.get_csv_lists(csv_reader)
 		entropies = list()
 		entropies.append(('Y',None,0.9852))
 		entropies.append(('Y',[('A','1')],0.8113))
@@ -41,7 +41,7 @@ def unit_test_entropy(input):
 		entropies.append(('Y',['B',('A','1')],-0.1226+0.8113))
 		entropies.append(('Y',['C',('A','1')],0.5))
 		for triple in entropies:
-			entropy = inspect.get_entropy(csv_lists,triple[0],triple[1])
+			entropy = insp.get_entropy(csv_lists,triple[0],triple[1])
 			if entropy >= 0:
 				if (round(entropy,4) != triple[2]) :
 					print('---------------- Warning: different values here :-----------------')
@@ -58,7 +58,7 @@ def unit_test_mutual_information(input):
 	b = True
 	with open(input,'rb') as fin:
 		csv_reader = csv.reader(fin)
-		csv_lists = inspect.get_csv_lists(csv_reader)
+		csv_lists = insp.get_csv_lists(csv_reader)
 		mutual_info = list()
 		mutual_info.append(('Y','A',None,0.5216))
 		mutual_info.append(('Y','B',None,0.0202))
@@ -66,7 +66,7 @@ def unit_test_mutual_information(input):
 		mutual_info.append(('Y','B',[('A','1')],0.1226))
 		mutual_info.append(('Y','C',[('A','1')],0.3113))
 		for triple in mutual_info:
-			I = inspect.get_mutual_information(csv_lists,triple[0],triple[1],triple[2])
+			I = insp.get_mutual_information(csv_lists,triple[0],triple[1],triple[2])
 			if I >= 0:
 				if (round(I,4) != triple[3]) :
 					print('--------------- Warning: different values here :--------------------')

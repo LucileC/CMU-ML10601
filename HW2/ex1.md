@@ -81,7 +81,7 @@ We have I(Y;C|A=1) > I(Y;B|A=1), so we should split on C.
 
 ## Empirical Questions
 
-1. Train and test errors on education and politicians dataset, depending on the depth of the tree.
+9. Train and test errors on education and politicians dataset, depending on the depth of the tree.
 
 | **Dataset** | **Max-Depth** | **Tain Error** | **Test Error** |
 |-------------|---------------|----------------|----------------|
@@ -96,5 +96,10 @@ We have I(Y;C|A=1) > I(Y;B|A=1), so we should split on C.
 | education   | 3             | 0.1700         | 0.2050         |
 | education   | 4             | 0.1300         | 0.1600         |
 
+10. Plot of train and test error against depth of the tree on the politicians dataset.
 
+
+<p align="center">
+<img src="https://github.com/LucileC/CMU-ML10601/blob/master/HW2/q10.png ">
+</p>
 
