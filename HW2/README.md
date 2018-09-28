@@ -18,7 +18,7 @@ Command line:
 
 * Politicians dataset:
 
-```python decisionTree.py handout/politicians_train.csv handout/politicians_test.csv 4 politicians_output/depth4/train.labels politicians_output/depth4/test.labels politicians_output/depth4/metrics.txt```
+```python decisionTree.py handout/politicians_train.csv handout/politicians_test.csv 3 politicians_output/depth3/train.labels politicians_output/depth3/test.labels politicians_output/depth3/metrics.txt```
 
 * Education dataset:
 

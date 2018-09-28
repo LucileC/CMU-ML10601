@@ -98,8 +98,35 @@ We have I(Y;C|A=1) > I(Y;B|A=1), so we should split on C.
 
 10. Plot of train and test error against depth of the tree on the politicians dataset.
 
-
 <p align="center">
 <img src="https://github.com/LucileC/CMU-ML10601/blob/master/HW2/q10.png ">
 </p>
+
+11. Instead of selecting the depth of the tree according to the test error, we should split again the training set into a validation set and a training set. The selection of the best depth for the tree would be done on the validation set. Then we would report a final error on the test set, that would have been untouch. Because our sataset is small, we could also do cross-validation.
+
+12. If we stop growing the tree whenever the mutual information for the best attribtute is lower than a threshold:
+- if the threshold is too low, it won't help stopping and the tree will keep growing. We will still overfit.
+- of the threshold is too high, it will stop growing the tree too early, and we will underfil.
+
+In pratical settings, just as for choosing the best depth of the tree, we would need to use cross-validation to choose the best threshold.
+
+13. Decision tree produced with the politician data with max depth 3.
+
+	---------
+	[ 66 republican / 83 democrat ]
+	|  Superfund_right_to_sue = y: [ 64 republican / 28 democrat ]
+	| |  Aid_to_nicaraguan_contras = y: [ 6 republican / 15 democrat ]
+	| | |  Mx_missile = y: [ 6 republican / 3 democrat ]
+	| | |  Mx_missile = n: [ 12 democrat ]
+	| |  Aid_to_nicaraguan_contras = n: [ 58 republican / 13 democrat ]
+	| | |  Export_south_africa = y: [ 38 republican / 13 democrat ]
+	| | |  Export_south_africa = n: [ 20 republican ]
+	|  Superfund_right_to_sue = n: [ 2 republican / 55 democrat ]
+	| |  Export_south_africa = y: [ 1 republican / 55 democrat ]
+	| | |  Immigration = y: [ 1 republican / 9 democrat ]
+	| | |  Immigration = n: [ 46 democrat ]
+	| |  Export_south_africa = n: [ 1 republican ]
+	---------
+	error(train): 0.114093959732
+	error(test): 0.168674698795
 

@@ -293,6 +293,6 @@ if __name__ == '__main__':
 
 	args = parser.parse_args()
 
-	# run(args.train_input,args.test_input,args.max_depth,args.train_out,args.test_out,args.metrics_out)
+	run(args.train_input,args.test_input,args.max_depth,args.train_out,args.test_out,args.metrics_out)
 
-	plot_errors_as_function_of_depth(args.train_input,args.test_input)
+	# plot_errors_as_function_of_depth(args.train_input,args.test_input)
